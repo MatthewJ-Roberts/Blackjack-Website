@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Blackjack</title>
+</head>
+
+<body>
+    
+    <div class="settings">
+        <input type="number" id="betAmount"></input>
+        <button id="submitBet" onclick="bet()">Confirm Bet</button>
+        <div id="bet">Bet: 0</div>
+        <div id="balance">Coins: 100</div>
+        <button id="store" onclick="store()">Store</button>
+    </div>
+
+    <div id="dealer">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div id="dealerTotal">
+            0
+        </div>
+    </div>
+
+    <div id="choices">
+        <button id="hit" onclick="hit()"><strong>Hit</strong></button>
+        <button id="stand" onclick="stand()"><strong>Stand</strong></button>
+        <button id="double" onclick="double()"><strong>Double</strong></button>
+    </div>
+
+    <div id="player">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div id="playerTotal">
+            0
+        </div>
+    </div>
+
+    <div id="items">
+        <button id="flatBonusCoins" onclick="buyFlatBonus(this)">+10 coins every game played: 200 coins</button>
+        <button id="percentageBonusCoins" onclick="buyPercentBonus(this)">+50% coins every game won: 200 coins</button>
+        <button id="tomatoBackground" onclick="buyBackground(this)">Tomato Background: 0 coins</button>
+        <button id="blueBackground" onclick="buyBackground(this)">Blue Background: 50 coins</button>
+        <button id="greenBackground" onclick="buyBackground(this)">Green Background: 100 coins</button>
+        <button id="purpleBackground" onclick="buyBackground(this)">Purple Background: 200 coins</button>
+        <button id="goldBackground" onclick="buyBackground(this)">Gold Background: 500 coins</button>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

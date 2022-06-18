@@ -1,0 +1,425 @@
+HTML
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Blackjack</title>
+</head>
+
+<body>
+    
+    <div class="settings">
+        <input type="number" id="betAmount"></input>
+        <button id="submitBet" onclick="bet()">Confirm Bet</button>
+        <div id="bet">Bet: 0</div>
+        <div id="balance">Coins: 100</div>
+        <button id="store" onclick="store()">Store</button>
+    </div>
+
+    <div id="dealer">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div id="dealerTotal">
+            0
+        </div>
+    </div>
+
+    <div id="choices">
+        <button id="hit" onclick="hit()"><strong>Hit</strong></button>
+        <button id="stand" onclick="stand()"><strong>Stand</strong></button>
+        <button id="double" onclick="double()"><strong>Double</strong></button>
+    </div>
+
+    <div id="player">
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+        <div id="playerTotal">
+            0
+        </div>
+    </div>
+
+    <div id="items">
+        <button id="flatBonusCoins" onclick="buyFlatBonus(this)">+10 coins every game played: 200 coins</button>
+        <button id="percentageBonusCoins" onclick="buyPercentBonus(this)">+50% coins every game won: 200 coins</button>
+        <button id="tomatoBackground" onclick="buyBackground(this)">Tomato Background: 0 coins</button>
+        <button id="blueBackground" onclick="buyBackground(this)">Blue Background: 50 coins</button>
+        <button id="greenBackground" onclick="buyBackground(this)">Green Background: 100 coins</button>
+        <button id="purpleBackground" onclick="buyBackground(this)">Purple Background: 200 coins</button>
+        <button id="goldBackground" onclick="buyBackground(this)">Gold Background: 500 coins</button>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
+
+CSS
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    padding: 1% 10%;
+    background:tomato;
+}
+
+
+::-webkit-scrollbar, .card, #items {
+    display: none;
+}
+
+.card, #dealer, #player, #dealerTotal, #playerTotal, #choices, .settings, #balance, #submitBet, #bet, 
+#betAmount {
+    display: grid;
+}
+
+button, #betAmount {
+    height: 100px;
+    margin: 50px 0;
+    font-size: large;
+    border: none;
+    border-radius: 1em;
+    background-color: white;
+}
+
+.card, #dealerTotal, #playerTotal, #balance, #submitBet, #bet, #betAmount {
+    width: 100px;
+    height: 150px;
+    justify-items: center;
+    align-items: center;
+    background-color: white;
+}
+
+#dealer, #player {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    row-gap: 15%;
+}
+
+#choices {
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 15%;
+}
+
+button:hover, #submitBet:hover {
+    background-color: #fee;
+}
+
+.settings {
+    grid-template-columns: repeat(auto-fit, 150px);
+    justify-content: right;
+    margin-bottom: 50px;
+    row-gap: 15%;
+}
+
+#balance, #store, #submitBet, #bet, #betAmount {
+    height: 50px;
+    margin: 0;
+    border-radius: 1em;
+}
+
+#dealerTotal, #playerTotal {
+    border-radius: 1em;
+}
+
+#items {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    column-gap: 5%;
+}
+
+JavaScript
+
+var player = document.getElementById("player");
+var dealer = document.getElementById("dealer");
+
+var playerNumber = 0;
+var balance = 100;
+var betTotal = 0;
+
+var playerAce = 0;
+var dealerAce = 0;
+
+var numPlays = 0;
+var doubleBet = false;
+
+var flatBonus = 0;
+var percentBonus = 0;
+
+var numItems = [0, 0];
+
+//Source: https://www.thatsoftwaredude.com/content/6417/how-to-code-blackjack-using-javascript
+var suits = ["♠", "♥", "♦", "♣"];
+var values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+var deck = [];
+
+function createDeck() {
+
+    deck = [];
+
+    for (var i = 0 ; i < values.length; i++) {
+
+        for(var x = 0; x < suits.length; x++) {
+            var weight = parseInt(values[i]);
+            if (values[i] == "J" || values[i] == "Q" || values[i] == "K")
+                weight = 10;
+            if (values[i] == "A")
+                weight = 11;
+            var card = { Value: values[i], Suit: suits[x], Weight: weight };
+            deck.push(card);
+        }
+    }
+}
+
+window.onload = function WindowLoad(event) {
+    
+    for (let index = 1; index < player.childNodes.length-2; index+=2) {
+        const element = player.childNodes[index];
+        element.style.display = "none";
+    }
+
+    for (let index = 1; index < dealer.childNodes.length-2; index+=2) {
+        const element = dealer.childNodes[index];
+        element.style.display = "none";
+    }
+
+    if (numPlays === 3) {
+        balance = balance + 50;
+        numPlays = 0;
+    }
+
+    document.getElementById("playerTotal").textContent = 0;
+    document.getElementById("dealerTotal").textContent = 0;
+    playerNumber = 0;
+    betTotal = 0;
+    playerAce = 0;
+    dealerAce = 0;
+    balance = balance + flatBonus;
+    numPlays = numPlays + 1;
+    document.getElementById("bet").textContent = "Bet: " + 0;
+    document.getElementById("balance").textContent = "Coins: " + balance;
+    createDeck();
+
+}
+
+//Source: https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function bet() {
+
+    var val = document.getElementById("betAmount").value;
+
+    if (playerNumber > 0 && !doubleBet) {
+        return;
+    }
+
+    var betAmount = document.getElementById("bet");
+
+    if ((betTotal + Number(val)) > balance) {
+        return;
+    } else {
+        betTotal = betTotal + Number(val);
+        betAmount.textContent = "Bet: " + betTotal;
+    }
+
+}
+
+async function hit() {
+    var cardIndex = Math.floor((Math.random() * (deck.length-1)) + 1);
+
+    for (let index = 1; index < player.childNodes.length-2; index+=2) {
+        const element = player.childNodes[index];
+
+        if (element.style.display === "none") {
+            element.textContent = deck[cardIndex].Value + " " + deck[cardIndex].Suit;
+            element.style.display = "grid";
+            break;
+        }
+
+    }
+
+    if (deck[cardIndex].Weight === 11) {
+        playerAce = playerAce + 1;
+    }
+
+    playerNumber = playerNumber + deck[cardIndex].Weight;
+    deck.splice(cardIndex, 1);
+    document.getElementById("playerTotal").textContent = playerNumber;
+    await sleep(50);
+
+    if (playerNumber > 21 && playerAce > 0) {
+        playerAce = playerAce - 1;
+        playerNumber = playerNumber - 10;
+        document.getElementById("playerTotal").textContent = playerNumber;
+    } else if (playerNumber > 21) {
+        alert("Player Bust!");
+        balance = balance - betTotal;
+        dispatchEvent(new Event('load'));
+    }
+
+}
+
+async function stand() {
+
+    var cardIndex = 0;
+    var number = 0;
+
+    for (let index = 1; index < dealer.childNodes.length-2; index+=2) {
+        const element = dealer.childNodes[index];
+        cardIndex = Math.floor((Math.random() * (deck.length-1)) + 1);
+        
+        if (element.style.display === "none") {
+            element.textContent = deck[cardIndex].Value + " " + deck[cardIndex].Suit;
+            element.style.display = "grid";
+        }
+
+        if (deck[cardIndex].Weight === 11) {
+            dealerAce = dealerAce + 1;
+        }
+
+        number = number + deck[cardIndex].Weight;
+        deck.splice(cardIndex, 1);
+        document.getElementById("dealerTotal").textContent = number;
+
+        if (number > 21 && dealerAce > 0) {
+            dealerAce = dealerAce - 1;
+            number = number - 10;
+            document.getElementById("dealerTotal").textContent = number;
+        }
+
+        await sleep(1000);
+
+        if (number >= 16) {
+            break;
+        }
+
+    }
+
+    if (number > 21) {
+        alert("Dealer Bust! Player Wins!");
+        balance = balance + betTotal + (betTotal * percentBonus);
+    } else if (number > playerNumber) {
+        alert("Dealer Wins!");
+        balance = balance - betTotal;
+    } else if (number < playerNumber) {
+        alert("Player Wins!");
+        balance = balance + betTotal + (betTotal * percentBonus);
+    } else {
+        alert("Draw.");
+    }
+
+    //Source: https://stackoverflow.com/questions/9642823/force-a-window-onload-event-in-javascript
+    dispatchEvent(new Event('load'));
+
+}
+
+async function double() {
+    doubleBet = true;
+    bet(betTotal);
+    doubleBet = false;
+    hit();
+
+    if (playerNumber <= 21) {
+        await sleep(1000);
+        stand();
+    }
+
+}
+
+function store() {
+
+    if (document.getElementById("bet").style.display === "none") {
+        player.style.display = "grid";
+        dealer.style.display = "grid";
+        document.getElementById("choices").style.display = "grid";
+        document.getElementById("bet").style.display = "grid";
+        document.getElementById("betAmount").style.display = "grid";
+        document.getElementById("submitBet").style.display = "grid";
+        document.getElementById("items").style.display = "none";
+    } else {
+        player.style.display = "none";
+        dealer.style.display = "none";
+        document.getElementById("choices").style.display = "none";
+        document.getElementById("bet").style.display = "none";
+        document.getElementById("betAmount").style.display = "none";
+        document.getElementById("submitBet").style.display = "none";
+        document.getElementById("items").style.display = "grid";
+    }
+
+}
+
+function buyBackground(val) {
+    var item;
+    var price;
+    item = val.textContent.substring(0, val.textContent.indexOf(" "));
+    price = val.textContent.substring(val.textContent.indexOf(":") + 2, val.textContent.lastIndexOf(" "));
+
+    if ((balance - Number(price)) < 0) {
+        return;
+    }
+
+    document.body.style.background = item;
+    balance = balance - Number(price);
+    document.getElementById("balance").textContent = "Coins: " + balance;
+    document.getElementById(val.id).textContent = 
+    val.textContent.substring(0, val.textContent.indexOf(":") + 1) + " 0 coins"; 
+}
+
+function buyFlatBonus(val) {
+    var price;
+    price = val.textContent.substring(val.textContent.indexOf(":") + 2, val.textContent.lastIndexOf(" "));
+
+    if ((balance - Number(price)) < 0) {
+        return;
+    }
+
+    numItems[0] = numItems[0] + 1
+
+    flatBonus = flatBonus + 10;
+    balance = balance - Number(price);
+    document.getElementById("balance").textContent = "Coins: " + balance;
+    if (numItems[0] <= 1) {
+        document.getElementById(val.id).textContent = "(" + numItems[0] + ") " + 
+        val.textContent.substring(0, val.textContent.indexOf(":") + 1) + " " + (Number(price) + 100) + " coins";
+        return;
+    }
+    document.getElementById(val.id).textContent = "(" + numItems[0] + ") " + 
+    val.textContent.substring(4, val.textContent.indexOf(":") + 1) + " " + (Number(price) + 100) + " coins";
+
+}
+
+function buyPercentBonus(val) {
+    var price;
+    price = val.textContent.substring(val.textContent.indexOf(":") + 2, val.textContent.lastIndexOf(" "));
+
+    if ((balance - Number(price)) < 0) {
+        return;
+    }
+
+    numItems[1] = numItems[1] + 1
+
+    percentBonus = percentBonus + 0.5;
+    balance = balance - Number(price);
+    document.getElementById("balance").textContent = "Coins: " + balance;
+    if (numItems[1] <= 1) {
+        document.getElementById(val.id).textContent = "(" + numItems[1] + ") " + 
+        val.textContent.substring(0, val.textContent.indexOf(":") + 1) + " " + (Number(price) * 2) + " coins";
+        return;
+    }
+    document.getElementById(val.id).textContent = "(" + numItems[1] + ") " + 
+    val.textContent.substring(4, val.textContent.indexOf(":") + 1) + " " + (Number(price) * 2) + " coins";
+
+}

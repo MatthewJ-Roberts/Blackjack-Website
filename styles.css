@@ -1,0 +1,74 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    padding: 1% 10%;
+    background:tomato;
+}
+
+
+::-webkit-scrollbar, .card, #items {
+    display: none;
+}
+
+.card, #dealer, #player, #dealerTotal, #playerTotal, #choices, .settings, #balance, #submitBet, #bet, 
+#betAmount {
+    display: grid;
+}
+
+button, #betAmount {
+    height: 100px;
+    margin: 50px 0;
+    font-size: large;
+    border: none;
+    border-radius: 1em;
+    background-color: white;
+}
+
+.card, #dealerTotal, #playerTotal, #balance, #submitBet, #bet, #betAmount {
+    width: 100px;
+    height: 150px;
+    justify-items: center;
+    align-items: center;
+    background-color: white;
+}
+
+#dealer, #player {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    row-gap: 15%;
+}
+
+#choices {
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 15%;
+}
+
+button:hover, #submitBet:hover {
+    background-color: #fee;
+}
+
+.settings {
+    grid-template-columns: repeat(auto-fit, 150px);
+    justify-content: right;
+    margin-bottom: 50px;
+    row-gap: 15%;
+}
+
+#balance, #store, #submitBet, #bet, #betAmount {
+    height: 50px;
+    margin: 0;
+    border-radius: 1em;
+}
+
+#dealerTotal, #playerTotal {
+    border-radius: 1em;
+}
+
+#items {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    column-gap: 5%;
+}
